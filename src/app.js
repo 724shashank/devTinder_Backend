@@ -5,7 +5,8 @@ app.get("/", (req, res) => {
   res.send("Hello From the server...");
 });
 
-app.get("/test", (req, res) => {
+app.get("/test/:userID/:password", (req, res) => {
+  console.log(req.params)
   res.send("Hello From the Test Route...");
 });
 app.post("/test", (req, res) => {
