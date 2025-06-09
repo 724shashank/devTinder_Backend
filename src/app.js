@@ -8,6 +8,17 @@ app.get("/", (req, res) => {
 app.get("/test", (req, res) => {
   res.send("Hello From the Test Route...");
 });
+app.post("/test", (req, res) => {
+  res.send("Hello From the Post Method...");
+});
+
+app.patch("/test", (req, res) => {
+  res.send("Hello From the Patch Method..");
+});
+
+app.delete("/test", (req, res) => {
+  res.send("Hello From the Delete Method...");
+});
 
 app.listen(3000, () => {
   console.log("The Server Is Up and Running...");
