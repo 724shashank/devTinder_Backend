@@ -11,10 +11,13 @@ app.use(express.json());
 app.post("/signup", async (req, res) => {
   const userData = new User(req.body);
   try {
-    await userData.save();
+    if (userData?.skills.length >= 11) {
+      throw new Error("Enter Top 10 Skills Only...");
+    }
+    await userData.save({ validateBeforeSave: true });
     res.send("Data has been send");
   } catch (error) {
-    res.status(400).send("Something went Wrong:" + error.message);
+    res.status(400).send("Something went Wrong:-" + error.message);
   }
 });
 
@@ -38,7 +41,7 @@ app.get("/user", async (req, res) => {
 app.get("/feed", async (req, res) => {
   try {
     const users = await User.find({}); //if we want all users we left the find field empty
-    if (users.lenght === 0) {
+    if (users.length === 0) {
       res.status(404).send("No data found");
     } else {
       res.status(200).send(users);
@@ -65,14 +68,37 @@ app.delete("/user", async (req, res) => {
 
 //Update User API Patch/user
 
-app.patch("/user", async (req, res) => {
+app.patch("/user/:userId", async (req, res) => {
   try {
-    //const response = await User.findByIdAndUpdate({ _id: req.body.id },req.body, {returnDocument:"after"}); 
-   const response = await User.findOneAndUpdate({ emailId: req.body.emailId },req.body, {returnDocument:"after"})
+    //API Level validations
+    const allowedFields = [
+      "password",
+      "photoUrl",
+      "skills",
+      "about",
+      "mobileNo",
+    ];
+    const result = Object.keys(req.body).every((k) =>
+      allowedFields.includes(k)
+    );
+    if (!result) {
+      throw new Error("Update is not Possible");
+    }
+
+    if (req.body?.skills.length >= 11) {
+      throw new Error("Update is not Possible");
+    }
+
+    const response = await User.findByIdAndUpdate(
+      { _id: req.params.userId },
+      req.body,
+      { new: true, runValidators: true }
+    );
+
     if (response === null) {
       res.status(404).send("No data found");
     } else {
-      res.status(200).send("User Firstname Updated to :" + response );
+      res.status(200).send("User Firstname Updated to :" + response);
     }
   } catch (error) {
     res.status(500).send("Something Went Wrong " + error.message);
