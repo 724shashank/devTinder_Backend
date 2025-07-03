@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const validator = require("validator");
 
 const userSchema = mongoose.Schema(
   {
@@ -19,17 +20,25 @@ const userSchema = mongoose.Schema(
       unique: true,
       trim: true,
       lowercase: true,
-      match: [/.+\@.+\..+/, "Please enter a valid email address"],
+      match: [
+        /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+        "Please enter a valid email address",
+      ],
     },
     mobileNo: {
       type: Number,
       required: true,
       unique: true,
-     match: [/^(?:\+91|91)?[6-9]\d{9}$/, "Please enter a valid phone number"]
+      match: [/^(?:\+91|91)?[6-9]\d{9}$/, "Please enter a valid phone number"],
     },
     password: {
       type: String,
       required: true,
+      validate(value) {
+        if (!validator.isStrongPassword(value)) {
+          throw new Error("Enter a Strong password");
+        }
+      },
     },
     age: {
       type: Number,
@@ -48,9 +57,12 @@ const userSchema = mongoose.Schema(
     },
     photoUrl: {
       type: String,
-      match:[/^https?:\/\/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(:\d+)?(\/\S*)?$/,"URL not valid..."],
-      default:"https://icones.pro/wp-content/uploads/2021/02/icone-utilisateur.png",
-      
+      match: [
+        /^https?:\/\/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(:\d+)?(\/\S*)?$/,
+        "URL not valid...",
+      ],
+      default:
+        "https://icones.pro/wp-content/uploads/2021/02/icone-utilisateur.png",
     },
     skills: {
       type: [String],
@@ -58,8 +70,8 @@ const userSchema = mongoose.Schema(
     about: {
       type: String,
       default: "This is the default description about the user...",
-      maxLength:200,
-      minLength:30
+      maxLength: 200,
+      minLength: 30,
     },
   },
   {

@@ -2,6 +2,9 @@ require("dotenv").config();
 const express = require("express");
 const connectDB = require("./config/dataBase");
 const User = require("./models/user");
+const bcrypt = require("bcrypt");
+const validator = require("validator");
+const { validatorFunction } = require("./utils/validatorFunction");
 const app = express();
 
 app.use(express.json());
@@ -9,15 +12,54 @@ app.use(express.json());
 //signup API POST/signup
 
 app.post("/signup", async (req, res) => {
-  const userData = new User(req.body);
   try {
-    if (userData?.skills.length >= 11) {
+    //validation
+
+    validatorFunction(req);
+
+    // Check skills limit before creating model
+
+    if (req.body.skills?.length >= 11) {
       throw new Error("Enter Top 10 Skills Only...");
     }
+
+    //Hashing the Password
+
+    const hash = await bcrypt.hash(req.body.password, 10);
+
+    const encryptedObj = { ...req.body, password: hash };
+
+    const userData = new User(encryptedObj);
+
     await userData.save({ validateBeforeSave: true });
     res.send("Data has been send");
   } catch (error) {
-    res.status(400).send("Something went Wrong:-" + error.message);
+    res.status(400).send("Something went Wrong:- " + error.message);
+  }
+});
+
+//Login API POST/login
+
+app.post("/login", async (req, res) => {
+  try {
+    if (!validator.isEmail(req.body.emailId)) {
+      throw new Error("Enter the valid Email-ID");
+    }
+
+    const user = await User.findOne({ emailId: req.body.emailId });
+    if (user === null) {
+      throw new Error("Invalid credentials");
+    }
+    const hash = user.password;
+
+    const result = await bcrypt.compare(req.body.password, hash);
+    if (result) {
+      res.status(200).send("login Successful !");
+    } else {
+      throw new Error("Invalid credentials");
+    }
+  } catch (error) {
+    res.status(401).send(`Access Unauthorized : ${error.message}`);
   }
 });
 
