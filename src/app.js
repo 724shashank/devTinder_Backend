@@ -6,10 +6,14 @@ const bcrypt = require("bcrypt");
 const validator = require("validator");
 const { validatorFunction } = require("./utils/validatorFunction");
 const app = express();
+const cookieParser = require("cookie-parser");
+const { userAuth } = require("./middleware/authentication");
 
 app.use(express.json());
 
-//signup API POST/signup
+app.use(cookieParser());
+
+// API:- POST/signup
 
 app.post("/signup", async (req, res) => {
   try {
@@ -38,7 +42,7 @@ app.post("/signup", async (req, res) => {
   }
 });
 
-//Login API POST/login
+// API:- POST/login
 
 app.post("/login", async (req, res) => {
   try {
@@ -50,9 +54,18 @@ app.post("/login", async (req, res) => {
     if (user === null) {
       throw new Error("Invalid credentials");
     }
+
+    //Creating JWT
+
+    const token = await user.getJWT();
+
+    //Sending Cookies
+
+    res.cookie("token", token);
+
     const hash = user.password;
 
-    const result = await bcrypt.compare(req.body.password, hash);
+    const result = await user.checkPassword(req.body.password);
     if (result) {
       res.status(200).send("login Successful !");
     } else {
@@ -63,87 +76,28 @@ app.post("/login", async (req, res) => {
   }
 });
 
-//user API GET/user by email ID
+// API:- GET/profile
 
-app.get("/user", async (req, res) => {
+app.get("/profile", userAuth, async (req, res) => {
   try {
-    const user = await User.find({ emailId: req.body.emailId });
-    if (user.length === 0) {
-      res.send("User not Found");
+    const user = req.user;
+    if (!user) {
+      throw new Error("User not found");
     } else {
       res.send(user);
     }
   } catch (error) {
-    res.status(400).send("Something went wrong...");
+    res.status(400).send(`Error Occurred :- ${error.message}`);
   }
 });
 
-//Feed API GET/user - get single profile
+// API:- POST/sendConnectionRequest
 
-app.get("/feed", async (req, res) => {
+app.post("/sendConnectionRequest", userAuth, async (req, res) => {
   try {
-    const users = await User.find({}); //if we want all users we left the find field empty
-    if (users.length === 0) {
-      res.status(404).send("No data found");
-    } else {
-      res.status(200).send(users);
-    }
+    res.send(`${req.user.firstName} send the connection request !`);
   } catch (error) {
-    res.status(500).send("Something Went Wrong" + error.message);
-  }
-});
-
-//Delete User API DELETE/user
-
-app.delete("/user", async (req, res) => {
-  try {
-    const response = await User.findByIdAndDelete({ _id: req.body.id });
-    if (response === null) {
-      res.status(404).send("No data found");
-    } else {
-      res.status(200).send("User Deleted : " + response);
-    }
-  } catch (error) {
-    res.status(500).send("Something Went Wrong" + error.message);
-  }
-});
-
-//Update User API Patch/user
-
-app.patch("/user/:userId", async (req, res) => {
-  try {
-    //API Level validations
-    const allowedFields = [
-      "password",
-      "photoUrl",
-      "skills",
-      "about",
-      "mobileNo",
-    ];
-    const result = Object.keys(req.body).every((k) =>
-      allowedFields.includes(k)
-    );
-    if (!result) {
-      throw new Error("Update is not Possible");
-    }
-
-    if (req.body?.skills.length >= 11) {
-      throw new Error("Update is not Possible");
-    }
-
-    const response = await User.findByIdAndUpdate(
-      { _id: req.params.userId },
-      req.body,
-      { new: true, runValidators: true }
-    );
-
-    if (response === null) {
-      res.status(404).send("No data found");
-    } else {
-      res.status(200).send("User Firstname Updated to :" + response);
-    }
-  } catch (error) {
-    res.status(500).send("Something Went Wrong " + error.message);
+    res.status(400).send(`Something Went Wrong ${error.message}`);
   }
 });
 
