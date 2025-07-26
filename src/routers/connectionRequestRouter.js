@@ -1,9 +1,12 @@
+const mongoose = require("mongoose");
 const express = require("express");
 const connectionRequestRouter = express.Router();
 const { userAuth } = require("../middleware/authentication");
 const ConnectionRequest = require("../models/connectionRequest");
 const User = require("../models/user");
 const { dynamicParams } = require("../utils/validatorFunction");
+
+//API for sending Connection Request
 
 connectionRequestRouter.post(
   "/request/send/:status/:toUserID",
@@ -16,6 +19,10 @@ connectionRequestRouter.post(
         toUserID: req.params.toUserID,
         status: req.params.status,
       };
+
+      if (String(reqObj.fromUserID) === String(reqObj.toUserID)) {
+        return res.status(400).json({ message: "Object Id can not be same !" });
+      }
 
       const checkExist = await ConnectionRequest.findOne({
         $or: [
@@ -40,15 +47,55 @@ connectionRequestRouter.post(
 
       await result.save();
 
-      const user = await User.findById(result.toUserID);
-
-      if (user === null) {
-        throw new Error("User Does not exist");
-      }
-
-      res.json({ message: `The Request has been sent to ${user.firstName} ` });
+      res.status(200).json({
+        message: `The Request has been sent to ${validateToUserId.firstName} `,
+        result,
+      });
     } catch (error) {
       res.status(400).send(`Something Went Wrong ${error.message}`);
+    }
+  }
+);
+
+//API for reviewing the connection request
+
+connectionRequestRouter.post(
+  "/request/review/:status/:requestId",
+  userAuth,
+  async (req, res) => {
+    try {
+      const loggedInUser = req.user;
+      const { status, requestId } = req.params;
+
+      const allowedStatus = ["accepted", "rejected"];
+
+      if (!allowedStatus.includes(status.toLowerCase())) {
+        res.status(400).json({ message: "Status String not allowed !" });
+      }
+
+      if (!mongoose.Types.ObjectId.isValid(requestId)) {
+        res.status(400).json({ message: "Invalid request ID parameter !" });
+      }
+
+      const userData = await ConnectionRequest.findOne({
+        _id: requestId,
+        toUserID: loggedInUser._id,
+        status: "interested",
+      });
+      if (!userData) {
+        res.status(404).json({ message: "Connection request not found !" });
+      }
+
+      userData.status = "accepted";
+
+      await userData.save();
+      res
+        .status(200)
+        .json({ message: "Connection request Accepted !  ", userData });
+    } catch (error) {
+      res
+        .status(400)
+        .json({ message: `Something Went Wrong ${error.message}` });
     }
   }
 );

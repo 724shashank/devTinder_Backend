@@ -14,7 +14,7 @@ const userRouter = require("./routers/userRouter");
 const connectionRequestRouter = require("./routers/connectionRequestRouter");
 
 app.use( "/",authRouter);
-//app.use("/",userRouter);
+app.use("/",userRouter);
 app.use("/", profileRouter);
 app.use("/", connectionRequestRouter);
 app.use((err, req, res, next) => {

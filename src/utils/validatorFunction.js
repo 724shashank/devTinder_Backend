@@ -11,7 +11,7 @@ function validatorFunction(req, res, next) {
   } else if (!validator.isStrongPassword(password)) {
     return next(new Error("Password is weak..."));
   }
-next();
+  next();
 }
 
 function profileEdit(req, res, next) {
@@ -54,28 +54,25 @@ function validatePassword(req, res, next) {
   next();
 }
 
-function dynamicParams(req,res,next){
-const status=req.params.status;
-const toUserID=req.params.toUserID;
+function dynamicParams(req, res, next) {
+  const status = req.params.status;
+  const toUserID = req.params.toUserID;
 
-if(!["interested","pass"].includes(status)){
-  return next(new Error("Invalid status parameter"));
-}
+  if (!["interested", "pass"].includes(status)) {
+    return next(new Error("Invalid status parameter"));
+  }
 
-if(!mongoose.Types.ObjectId.isValid(toUserID)){
-return next(new Error("Invalid User ID parameter"))
-}
-
-
-
-next();
+  if (!mongoose.Types.ObjectId.isValid(toUserID)) {
+    return next(new Error("Invalid User ID parameter"));
+  }
+  next();
 }
 
 module.exports = {
   validatorFunction,
   profileEdit,
   validatePassword,
-  dynamicParams
+  dynamicParams,
 };
 
 //These two are different
