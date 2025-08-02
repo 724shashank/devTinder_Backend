@@ -3,7 +3,12 @@ const express = require("express");
 const connectDB = require("./config/dataBase");
 const app = express();
 const cookieParser = require("cookie-parser");
+const cors = require("cors")
 
+app.use(cors({
+origin:"http://localhost:1234",   //This is called whitelisting  
+credentials:true,
+}));
 app.use(express.json());
 
 app.use(cookieParser());
