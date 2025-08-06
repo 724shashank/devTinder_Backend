@@ -59,7 +59,7 @@ authRouter.post("/login", async (req, res) => {
       throw new Error("Invalid credentials");
     }
   } catch (error) {
-    res.status(401).send(`Access Unauthorized : ${error.message}`);
+    res.status(401).json({message:`Access Unauthorized : ${error.message}`});
   }
 });
 
