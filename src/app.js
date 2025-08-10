@@ -5,13 +5,17 @@ const app = express();
 const cookieParser = require("cookie-parser");
 const cors = require("cors")
 
-app.use(cors({
-origin:"http://localhost:1234",   //This is called whitelisting  
-credentials:true,
-}));
+const corsOptions = {
+  origin: "http://localhost:1234", // whitelist frontend
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
-app.use(cookieParser());
+app.use(cookieParser());  
+
 
 const authRouter = require("./routers/authRouter");
 const profileRouter = require("./routers/profileRouter");

@@ -36,10 +36,9 @@ profileRouter.patch(
       Object.keys(req.body).every((key) => (loggedInUser[key] = req.body[key])); //same result can be achived by using Object.assign(target_object, source_object);
 
       await loggedInUser.save();
-
-      res.json({ message: "The data has been saved" });
+      res.status(200).json({ message: "The data has been saved",loggedInUser });
     } catch (error) {
-      res.status(400).send(`Error Occurred :- ${error.message}`);
+      res.status(400).json({ message: error.message});
     }
   }
 );

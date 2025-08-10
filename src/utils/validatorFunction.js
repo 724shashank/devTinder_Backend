@@ -17,7 +17,7 @@ function validatorFunction(req, res, next) {
 function profileEdit(req, res, next) {
   const allowedEditFields = [
     "firstName",
-    "lastname",
+    "lastName",
     "mobileNo",
     "age",
     "gender",
