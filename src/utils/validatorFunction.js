@@ -58,7 +58,7 @@ function dynamicParams(req, res, next) {
   const status = req.params.status;
   const toUserID = req.params.toUserID;
 
-  if (!["interested", "pass"].includes(status)) {
+  if (!["interested", "ignore"].includes(status)) {
     return next(new Error("Invalid status parameter"));
   }
 
