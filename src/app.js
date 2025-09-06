@@ -7,7 +7,7 @@ const cors = require("cors");
 const path = require("path");
 
 const corsOptions = {
-  origin: "http://localhost:1234", // whitelist frontend
+  origin: [process.env.Default_FrontEnd_Origin,process.env.AWS_FrontEnd_Origin], // whitelist frontend
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   credentials: true,
 };
@@ -35,7 +35,9 @@ connectDB
   .then(() => {
     console.log("Connected... ");
     app.listen(process.env.PORT, () => {
-      console.log(`The Server Is Up and Running on port no.${process.env.PORT}`);
+      console.log(
+        `The Server Is Up and Running on port no.${process.env.PORT}`
+      );
     });
   })
   .catch(() => console.log("Something Went Wrong..."));
