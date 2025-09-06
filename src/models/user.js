@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const validator = require("validator");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
@@ -27,21 +26,17 @@ const userSchema = mongoose.Schema(
         "Please enter a valid email address",
       ],
     },
-    mobileNo: {
-      type: Number,
-      required: true,
-      unique: true,
-      match: [/^(?:\+91|91)?[6-9]\d{9}$/, "Please enter a valid phone number"],
-    },
     password: {
       type: String,
       required: true,
-      validate(value) {
-        if (!validator.isStrongPassword(value)) {
-          throw new Error("Enter a Strong password");
-        }
-      },
     },
+    mobileNo: {
+      type: String,
+      unique: true,
+      sparse: true,
+      match: [/^(?:\+91|91)?[6-9]\d{9}$/, "Please enter a valid phone number"],
+    },
+
     age: {
       type: Number,
       min: 11,
@@ -59,12 +54,8 @@ const userSchema = mongoose.Schema(
     },
     photoUrl: {
       type: String,
-      match: [
-        /^https?:\/\/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(:\d+)?(\/\S*)?$/,
-        "URL not valid...",
-      ],
       default:
-        "https://icones.pro/wp-content/uploads/2021/02/icone-utilisateur.png",
+        "https://nationalchaplains.us/wp-content/uploads/2021/07/dummy-profile-pic.jpg",
     },
     skills: {
       type: [String],
@@ -84,7 +75,7 @@ const userSchema = mongoose.Schema(
 userSchema.methods.getJWT = async function () {
   const user = this;
 
-  const token = jwt.sign({ id: user._id }, "Secret@!Key", { expiresIn: "1d" });
+  const token = jwt.sign({ id: user._id },process.env.Secret_Key, { expiresIn: "1d" });
 
   return token;
 };

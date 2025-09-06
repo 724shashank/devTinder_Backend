@@ -46,11 +46,17 @@ connectionRequestRouter.post(
       const result = new ConnectionRequest(reqObj);
 
       await result.save();
-
-      res.status(200).json({
-        message: `The Request has been sent to ${validateToUserId.firstName} `,
-        result,
-      });
+      if (reqObj.status === "interested") {
+        res.status(200).json({
+          message: `The Request has been sent to ${validateToUserId.firstName}. `,
+          result,
+        });
+      } else {
+        res.status(200).json({
+          message: `The Request from ${validateToUserId.firstName} has been ignored.`,
+          result,
+        });
+      }
     } catch (error) {
       res.status(400).send(`Something Went Wrong ${error.message}`);
     }

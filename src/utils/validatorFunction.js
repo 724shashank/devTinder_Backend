@@ -1,13 +1,11 @@
 const mongoose = require("mongoose");
-
 const validator = require("validator");
+
 function validatorFunction(req, res, next) {
-  const { emailId, mobileNo, password } = req.body;
+  const { emailId, password } = req.body;
 
   if (!validator.isEmail(emailId)) {
     return next(new Error("Email is not valid"));
-  } else if (!validator.isMobilePhone(mobileNo, "any")) {
-    return next(new Error("Mobile no. is not valid"));
   } else if (!validator.isStrongPassword(password)) {
     return next(new Error("Password is weak..."));
   }
