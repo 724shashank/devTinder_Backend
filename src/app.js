@@ -35,7 +35,7 @@ connectDB
   .then(() => {
     console.log("Connected... ");
     app.listen(process.env.PORT, () => {
-      console.log("The Server Is Up and Running on port no.3000");
+      console.log(`The Server Is Up and Running on port no.${process.env.PORT}`);
     });
   })
   .catch(() => console.log("Something Went Wrong..."));
