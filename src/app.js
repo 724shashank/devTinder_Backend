@@ -34,7 +34,7 @@ app.use((err, req, res, next) => {
 connectDB
   .then(() => {
     console.log("Connected... ");
-    app.listen(3000, () => {
+    app.listen(process.env.PORT, () => {
       console.log("The Server Is Up and Running on port no.3000");
     });
   })
