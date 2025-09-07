@@ -19,7 +19,7 @@ profileRouter.get("/profile/view", userAuth, async (req, res) => {
       const updatedUser = {
         ...user._doc,
         photoUrl: user.photoUrl
-          ? `${req.protocol}://${req.get("host")}/${user.photoUrl}`
+          ? `${req.protocol}://${req.get("host")}/api/${user.photoUrl}`
           : null,
       };
       res.send(updatedUser);
