@@ -44,20 +44,12 @@ profileRouter.patch("/profile/edit",upload.single("photoUrl"),userAuth,profileEd
       // If a file was uploaded, save its path
 
       if (req.file) {
-        loggedInUser.photoUrl = `uploads/${req.file.filename}`;
+        loggedInUser.photoUrl = `${req.protocol}://${req.get("host")}/api/uploads/${req.file.filename}`;
       }
       await loggedInUser.save();
-
-      const userResponse = {
-        ...loggedInUser._doc,
-        photoUrl: loggedInUser.photoUrl
-          ? `${req.protocol}://${req.get("host")}/${loggedInUser.photoUrl}`
-          : null,
-      };
-
       res
         .status(200)
-        .json({ message: "The data has been saved", userResponse });
+        .json({ message: "The data has been saved", loggedInUser });
     } catch (error) {
       res.status(400).json({ message: error.message });
     }
