@@ -16,12 +16,6 @@ profileRouter.get("/profile/view", userAuth, async (req, res) => {
     if (!user) {
       throw new Error("User not found");
     } else {
-      // const updatedUser = {
-      //   ...user._doc,
-      //   photoUrl: user.photoUrl
-      //     ? `${req.protocol}://${req.get("host")}/api/${user.photoUrl}`
-      //     : null,
-      // };
       res.send(user);
     }
   } catch (error) {
